@@ -51,4 +51,13 @@ describe Elevator do
       elevator.should respond_to("floor_#{number}_down".to_sym)
     end
   end
+
+  it "should travel to floor 20 and floor 30 if the floor 20 button is pressed then the elevator is called from floor 30" do
+    elevator = Elevator.new(100)
+    elevator.should_receive(:travel_to_floor).once.ordered.with(20)
+    elevator.should_receive(:travel_to_floor).once.ordered.with(30)
+
+    elevator.floor_20
+    elevator.floor_30_up
+  end
 end
