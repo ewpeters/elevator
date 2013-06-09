@@ -1,8 +1,11 @@
 class Elevator
-  attr_accessor :number_for_floors, :current_floor, :floor_queue
+  attr_accessor :number_for_floors, :current_floor, :target_floor, :direction
+
+  attr_accessor :up_queue, :down_queue
   def initialize(number_of_floors)
     @number_of_floors = number_of_floors
-    @floor_queue = []
+    @up_queue = []
+    @down_queue = []
     @current_floor = 1
 
     (0..@number_of_floors).each do |floor_number|
@@ -14,24 +17,42 @@ class Elevator
     end
   end
 
+  def move(amount_to_move)
+    if @direction == -1
+      queue = @down_queue
+    else
+      queue = @up_queue
+    end
+
+    if queue.empty?
+      @direction = @direction * -1
+
+      queue = queue.eql?(@down_queue) ? @up_queue : @down_queue
+    end
+
+    @target_floor = queue.shift
+
+    amount_to_move.times do
+      unless @current_floor == target_floor
+        @current_floor += @direction
+      end
+    end
+  end
+
   private
   def floor_button(floor)
-    @floor_queue << floor
-    proccess_queue
+    if floor > @current_floor
+      @up_queue << floor unless @up_queue.include?(floor)
+      @up_queue.sort!
+      @direction = 1 unless @direction
+    else
+      @down_queue << floor unless @down_queue.include?(floor)
+      @down_queue.sort!
+      @direction = -1 unless @direction
+    end
   end
 
   def call_elevator(floor)
-    @floor_queue << floor
-    proccess_queue
-  end
-
-  def proccess_queue
-    @current_floor = travel_to_floor(@floor_queue.shift)
-    return @current_floor
-  end
-
-  def travel_to_floor(floor_number)
-    # do something to make elevator actually move?
-    return floor_number
+    floor_button(floor)
   end
 end
